@@ -1,13 +1,12 @@
-"""Transcriptomics utilities."""
-from .count_matrix import read_count_matrix, library_sizes, filter_low_count_genes
-from .expression_qc import expression_qc, gene_qc, flag_library_size_outliers
-from .normalization import cpm, median_ratio_size_factors, normalize_median_ratio
-from .differential_expression import two_group_expression_test
-from .transcript_annotation import read_transcript_annotation, transcript_gene_map
-from .isoform_usage import isoform_usage, dominant_isoform
+"""Molecular genetics utilities for sequence-level exploratory analyses."""
+from .sequence import reverse_complement, gc_content, validate_dna
+from .translation import transcribe, translate
+from .codon_usage import codon_usage
+from .motif_scanning import scan_motif
+from .primer_design import primer_metrics, design_primers
+from .protein_properties import protein_properties
 
-from .rnaseq import summarize_rnaseq, rna_seq_normalize, filter_expression
-from .eqtl import eqtl_scan
-from .twas import twas_expression_association
-from .coexpression import coexpression_matrix, coexpression_edges, module_membership
-from .allele_specific_expression import ase_binomial_test
+from .functional_annotation import load_annotations, annotate_gene_list, annotation_coverage
+from .go_enrichment import go_enrichment
+from .kegg_enrichment import kegg_enrichment
+from .regulatory_network import build_regulatory_network, network_summary, reachable_targets

@@ -1,72 +1,37 @@
-# `src/popgenml/preprocessing/` — detailed data QC
+# Molecular genetics package (Python)
 
-Five modules provide reproducible preprocessing for the 250-genotype,
-5-location, 3-replication, 300-marker synthetic experiment and compatible
-real-data tables.
+Sequence-level utilities for reproducible, exploratory molecular-genetics work.
 
 ## Modules
-| Module | Main functionality |
-|---|---|
-| `genotype_qc.py` | Sample/marker call rates, MAF, heterozygosity, HWE diagnostic, genotype-mode imputation |
-| `phenotype_qc.py` | Design completeness, duplicate detection, trait missingness, MAD outlier flags, means |
-| `expression_qc.py` | Integer-count checks, sample/gene filtering, library sizes, log2(CPM+1) |
-| `metadata_qc.py` | Genotype/location/replication validation and cross-table ID checks |
-| `data_integration.py` | Merge genotype markers and phenotype means without simulation-truth leakage |
+- `sequence.py`: DNA validation, reverse complement, GC% and base composition.
+- `translation.py`: transcription and standard genetic-code translation (frames 0–2).
+- `codon_usage.py`: codon counts and RSCU.
+- `motif_scanning.py`: overlapping/non-overlapping IUPAC motif scanning.
+- `primer_design.py`: heuristic primer metrics and terminal candidate enumeration.
+- `protein_properties.py`: amino-acid composition and approximate peptide mass.
+- `gene_structure.py`: exon/intron coordinate summaries.
+- `regulatory_motifs.py`: promoter-window extraction and motif scanning.
 
-## Dependencies
-`pip install numpy pandas`
-
-From repository root: `export PYTHONPATH="$PWD/src:$PYTHONPATH"` (Linux/WSL).
-
-## Usage
+## Quick start
 ```python
-from popgenml.preprocessing import (
-    GenotypeQC, PhenotypeQC, ExpressionQC, MetadataQC, DataIntegrator
-)
-
-filtered_geno, marker_qc, sample_qc, stats = GenotypeQC(
-    min_marker_call_rate=0.90, min_sample_call_rate=0.90,
-    min_maf=0.01
-).filter(genotype_df, output_dir="results/qc/genotype")
-
-flagged, trait_qc, means = PhenotypeQC(
-    expected_locations=5, expected_reps=3
-).inspect(phenotype_df, traits=["boll_weight_g", "fiber_strength_g_tex"],
-          output_dir="results/qc/phenotype")
-
-design_summary = MetadataQC(250,5,3).validate_design(
-    phenotype_df, output_dir="results/qc/metadata")
-
-ml_table = DataIntegrator.join_genotype_phenotype(
-    filtered_geno, means, trait="fiber_strength_g_tex",
-    output_dir="results/qc/integration")
-
-# For actual or simulated raw integer counts only:
-filtered_counts, log_cpm, sample_info, gene_info = ExpressionQC(
-    min_total_count=10, min_samples_expressed=3
-).process(expression_counts_df, output_dir="results/qc/expression")
+from popgenml.molecular_genetics import reverse_complement, translate, gc_content
+print(reverse_complement("ATGCCGTAA"))
+print(translate("ATGGCTTAA"))
+print(gc_content("ATGCGC"))
 ```
 
-## Input requirements
-- Genotypes: `genotype_id` plus `SNP_...` columns coded 0/1/2/NaN.
-- Phenotypes: one row per genotype-location-replication plot, with trait
-  columns; duplicate plot keys are not permitted.
-- Expression: one row per sample, `sample_id`, optional `group`, gene count
-  columns; counts must be nonnegative integers.
-- Trait means: `genotype_id`, `location_id` and numeric trait columns.
+Run tests from this folder's parent:
+```bash
+python -m unittest discover -s tests -v
+```
 
-## Scientific and analytical limitations
-- **Cotton is allotetraploid.** The diploid 0/1/2 QC routines are only
-  appropriate for a validated diploid-like marker encoding, not arbitrary
-  polyploid dosage calls.
-- HWE chi-square diagnostics can be misleading in structured, selected,
-  inbred, or small populations; they are reported, never auto-filtered.
-- Mode imputation is a simple baseline. More advanced imputation methods
-  should be evaluated against missingness and population structure.
-- Outliers are **flagged, not deleted**. Transgressive segregants and genuine
-  biological extremes must not be removed without review.
-- CPM is an exploratory normalization, not a DESeq2 normalization substitute.
-  Use untransformed raw counts with DESeq2 or edgeR for differential expression.
-- When genotype-location rows repeat genotypes, group cross-validation by
-  genotype (or use environment-aware validation) to prevent information leakage.
-- Synthetic truth labels must never be included as ML features.
+## Important scientific limits
+These are transparent educational utilities, not validated clinical or breeding-grade pipelines. Translation uses the standard nuclear code; organellar or lineage-specific codes require an alternative table. Motif scans are sequence matches, not evidence of transcription-factor binding. Promoter extraction assumes a supplied genomic sequence and 1-based TSS; strand-aware extraction must be handled upstream for minus-strand genes. Primer candidates use the Wallace Tm approximation and do not assess hairpins, primer dimers, specificity, repeat regions, amplicon size, or homeolog cross-amplification. Use Primer3 plus in-silico PCR/BLAST for real primer design. Protein mass is approximate and ignores post-translational modifications. For cotton, distinguish A- and D-subgenome homeologs and use the correct transcript/CDS, strand, genetic code, and reference assembly.
+
+## Functional annotation and pathway/network modules
+- `functional_annotation.py`: load a gene-to-description/GO/KEGG TSV, annotate a list, and calculate coverage.
+- `go_enrichment.py`: GO over-representation using a hypergeometric upper-tail test and BH FDR.
+- `kegg_enrichment.py`: pathway over-representation using the same statistical method and supplied gene-to-pathway mapping.
+- `regulatory_network.py`: construct directed regulator-target graphs, summarize degrees and list reachable downstream nodes.
+
+The enrichment universe should be the genes that could have been selected in the experiment (for example, all genes tested in the differential-expression analysis), not automatically the whole genome. Use organism- and release-matched GO/KEGG mappings; GO parent propagation and ontology-aware tests (e.g. topGO) are not implemented. KEGG access/licensing and ID conversion are outside this offline module. Regulatory edges must carry provenance/evidence; correlation alone does not establish regulation.
