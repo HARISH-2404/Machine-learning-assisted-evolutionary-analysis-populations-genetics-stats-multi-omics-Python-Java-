@@ -1,14 +1,2 @@
-"""Evolutionary forecasting tools."""
-from .fitness_models import genotype_fitness, custom_genotype_fitness
-from .wright_fisher import simulate_wright_fisher, summarize_simulations, deterministic_diploid_selection
-from .environment_gxe import environment_selection_schedule, predict_environmental_trait, apply_environmental_selection
-from .uncertainty import probability_above, fixation_loss_probability, bootstrap_mean_interval
-from .trait_forecasting import project_trait_from_allele_frequency, project_polygenic_trait
-from .resistance_transition import track_resistance_candidate, compare_resistance_and_susceptibility
-from .forecast_pipeline import forecast_allele_and_trait
-
-from .allele_trajectory import build_allele_trajectory, forecast_locus_trajectory
-from .phenotype_trajectory import summarize_phenotype_trajectory, project_phenotype_trajectory
-from .resistance_forecast import forecast_resistance_allele
-from .breeding_response import breeder_equation_response, project_breeding_response, selection_response_from_observations
-from .future_population import forecast_multiple_populations, project_population_counts
+"""Unified command-line interface for Integrated Population Genomics and ML."""
+__version__ = "0.1.0"
