@@ -1,0 +1,2 @@
+# Machine-learning-assisted-evolutionary-analysis-populations-genetics-stats-multi-omics-Python-Java-
+EvoBreed-ML: An integrated Population Genetics, Genomics, Transcriptomics, Molecular Genetics and Machine Learning framework for estimating allele and gene frequencies, genetic diversity, breeding values, and tracking evolutionary changes associated with adaptive traits, like disease resistance and susceptibility across generations.
