@@ -1,0 +1,73 @@
+project:
+  module: machine_learning
+  description: Machine learning for genomic and phenotypic prediction.
+input:
+  genotype_file: data/processed/genotype_matrix.csv
+  phenotype_file: data/processed/phenotype_matrix.csv
+  expression_file: data/processed/normalized_expression.csv
+  metadata_file: data/processed/sample_metadata.csv
+  target_traits: [yield, fiber_strength, disease_resistance]
+preprocessing:
+  missing_values: mean
+  scaling: standard
+  categorical_encoding: onehot
+  remove_zero_variance_features: true
+  feature_selection_before_split: false
+data_split:
+  method: group
+  training_fraction: 0.70
+  validation_fraction: 0.15
+  testing_fraction: 0.15
+  random_seed: 42
+  group_column: family
+  prevent_data_leakage: true
+cross_validation:
+  enabled: true
+  method: group_k_fold
+  folds: 5
+  repetitions: 3
+  group_column: family
+  nested: true
+models:
+  random_forest:
+    enabled: true
+    parameters: {n_estimators: 500, max_depth: null, min_samples_split: 2, min_samples_leaf: 1, random_state: 42, n_jobs: -1}
+  xgboost:
+    enabled: true
+    parameters: {n_estimators: 500, learning_rate: 0.05, max_depth: 5, subsample: 0.8, colsample_bytree: 0.8, objective: reg:squarederror, random_state: 42}
+  svm:
+    enabled: true
+    kernel: rbf
+    parameters: {C: 1.0, epsilon: 0.1, gamma: scale}
+  neural_network:
+    enabled: true
+    hidden_layers: [128, 64, 32]
+    activation: relu
+    epochs: 200
+    batch_size: 32
+    learning_rate: 0.001
+feature_selection:
+  enabled: true
+  methods: [correlation_filter, mutual_information, random_forest_importance, recursive_feature_elimination]
+  maximum_features: 100
+explainability:
+  enabled: true
+  methods: [permutation_importance, shap]
+evaluation:
+  regression_metrics: [r2, rmse, mae, pearson_correlation]
+  classification_metrics: [accuracy, precision, recall, f1, roc_auc]
+  generate_residual_plots: true
+model_comparison:
+  enabled: true
+  selection_metric: rmse
+  save_best_model: true
+forecasting:
+  enabled: true
+  forecast_generations: 5
+  uncertainty: {enabled: true, confidence_level: 0.95}
+outputs:
+  directory: results/machine_learning
+  save_models: true
+  save_predictions: true
+  save_metrics: true
+  figures: [model_comparison, predicted_vs_observed, residuals, feature_importance, shap_summary, forecast]

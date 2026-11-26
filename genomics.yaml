@@ -1,0 +1,53 @@
+project:
+  module: genomics
+  description: Genome variation, association mapping and selection signatures.
+reference:
+  genome_fasta: data/reference/genome.fa
+  annotation_gff3: data/reference/annotation.gff3
+  genome_build: specify_assembly_version
+  ploidy: 2
+variants:
+  input_vcf: data/processed/filtered_variants.vcf.gz
+  types: [SNP, INDEL]
+  minimum_gq: 20
+  minimum_dp: 5
+  maximum_dp: 100
+  minimum_maf: 0.01
+  maximum_missing_rate: 0.10
+  normalize: true
+  retain_multiallelic: false
+gwas:
+  enabled: true
+  genotype_file: data/processed/genotype_matrix.csv
+  phenotype_file: data/processed/phenotype_matrix.csv
+  traits: [yield, fiber_strength, disease_resistance]
+  model: linear_mixed_model
+  covariates:
+    principal_components: 5
+    kinship_matrix: true
+    environmental_variables: true
+  multiple_testing: {method: benjamini_hochberg, alpha: 0.05}
+qtl:
+  enabled: true
+  genetic_map: data/reference/genetic_map.csv
+  mapping_method: interval_mapping
+  traits: [yield, fiber_strength, disease_resistance]
+  significance: {method: permutation, permutations: 1000, confidence_level: 0.95}
+variant_annotation:
+  enabled: true
+  consequences: [intergenic, upstream, downstream, intronic, synonymous, missense, stop_gained, splice_region]
+  annotate_gene_and_transcript: true
+selection_sweeps:
+  enabled: true
+  methods: [tajimas_d, nucleotide_diversity, fst_windows, ihs, xpehh]
+  windows: {size_bp: 50000, step_bp: 10000}
+  ihs: {enabled: true, require_phased_genotypes: true}
+  xpehh: {enabled: true, population_1: POP_A, population_2: POP_B}
+  significance: {method: empirical, percentile: 99}
+genomic_relationship:
+  enabled: true
+  method: vanraden
+  standardize_genotypes: true
+outputs:
+  directory: results/genomics
+  figures: [manhattan, qq, qtl, sweep, genomic_relationship_heatmap]

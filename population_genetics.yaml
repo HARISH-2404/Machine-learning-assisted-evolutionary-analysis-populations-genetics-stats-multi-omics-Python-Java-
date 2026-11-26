@@ -1,0 +1,71 @@
+project:
+  module: population_genetics
+  description: Population diversity, equilibrium, linkage and structure.
+input:
+  genotype_file: data/processed/genotype_matrix.csv
+  population_file: data/processed/population_metadata.csv
+  genotype_format: dosage
+  genotype_coding: [0, 1, 2]
+  missing_value: -9
+  ploidy: 2
+quality_control:
+  maximum_missing_rate_per_sample: 0.10
+  maximum_missing_rate_per_marker: 0.10
+  minimum_minor_allele_frequency: 0.01
+  remove_monomorphic_markers: true
+  remove_duplicate_markers: true
+allele_frequency:
+  enabled: true
+  estimate_overall: true
+  estimate_by_population: true
+  estimate_by_generation: true
+genotype_frequency:
+  enabled: true
+  genotype_classes: [AA, AB, BB]
+hwe:
+  enabled: true
+  method: exact
+  significance_level: 0.05
+  multiple_testing: {enabled: true, method: fdr_bh}
+diversity:
+  enabled: true
+  calculate: [observed_heterozygosity, expected_heterozygosity, gene_diversity, nucleotide_diversity]
+  calculate_fis: true
+  nucleotide_diversity_method: biallelic_site
+pic:
+  enabled: true
+  method: biallelic
+f_statistics:
+  enabled: true
+  calculate: [Fis, Fst, Fit]
+  estimator: weir_cockerham
+  pairwise_fst: true
+  bootstrap: {enabled: true, replicates: 1000, confidence_level: 0.95, resampling_unit: locus}
+linkage_disequilibrium:
+  enabled: true
+  statistics: [D, D_prime, r_squared]
+  haplotype_method: phased
+  minimum_allele_frequency: 0.05
+  maximum_distance_bp: 100000
+  sliding_window: {enabled: true, window_size_bp: 50000, step_size_bp: 10000}
+haplotype:
+  enabled: true
+  require_phased_genotypes: true
+  calculate: [haplotype_frequency, haplotype_diversity, haplotype_sharing]
+genetic_distance:
+  enabled: true
+  methods: [nei_standard]
+  generate_distance_matrix: true
+population_structure:
+  pca: {enabled: true, number_of_components: 10, standardize_genotypes: true}
+  clustering: {enabled: true, method: kmeans, minimum_clusters: 2, maximum_clusters: 10}
+  ancestry: {enabled: false, method: admixture}
+amova:
+  enabled: true
+  hierarchy: [individual, population]
+  permutations: 999
+  significance_level: 0.05
+outputs:
+  directory: results/population_genetics
+  tables: [allele_frequency, genotype_frequency, hwe, diversity, pic, fst, ld, haplotypes, genetic_distance, pca, amova]
+  figures: [allele_frequency, diversity, fst_heatmap, ld_decay, pca, genetic_distance_heatmap]

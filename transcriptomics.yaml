@@ -1,0 +1,59 @@
+project:
+  module: transcriptomics
+  description: RNA-seq expression and regulatory association analyses.
+input:
+  count_matrix: data/raw/gene_counts.csv
+  sample_metadata: data/raw/sample_metadata.csv
+  gene_annotation: data/reference/annotation.gff3
+  expression_format: raw_counts
+  sample_id_column: sample_id
+  condition_column: condition
+  population_column: population
+  generation_column: generation
+quality_control:
+  enabled: true
+  minimum_library_size: 100000
+  minimum_gene_count: 10
+  minimum_samples_expressed: 2
+  remove_zero_count_genes: true
+  generate_pca: true
+normalization:
+  method: DESeq2
+  alternatives: [TMM, voom]
+  log_transform_for_visualization: true
+differential_expression:
+  enabled: true
+  method: DESeq2
+  design: "~ batch + condition"
+  contrasts:
+    - {name: high_vs_low, numerator: high, denominator: low}
+  alpha: 0.05
+  multiple_testing: BH
+  minimum_absolute_log2fc: 1.0
+eqtl:
+  enabled: true
+  genotype_file: data/processed/genotype_matrix.csv
+  expression_file: data/processed/normalized_expression.csv
+  model: linear_model_with_covariates
+  cis_window_bp: 1000000
+  test_trans_associations: true
+  multiple_testing: {method: fdr_bh, alpha: 0.05}
+twas:
+  enabled: true
+  phenotype_file: data/processed/phenotype_matrix.csv
+  traits: [yield, fiber_strength, disease_resistance]
+  method: association_screen
+coexpression:
+  enabled: true
+  method: pearson
+  correlation_threshold: 0.70
+  multiple_testing: fdr_bh
+  calculate_hub_metrics: true
+allele_specific_expression:
+  enabled: true
+  require_allele_specific_read_counts: true
+  method: beta_binomial
+  alpha: 0.05
+outputs:
+  directory: results/transcriptomics
+  figures: [volcano, heatmap, pca, expression_boxplot, coexpression_network]

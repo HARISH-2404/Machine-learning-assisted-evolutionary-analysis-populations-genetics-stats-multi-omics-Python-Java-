@@ -1,0 +1,101 @@
+project:
+  name: Integrated Population Genomics ML
+  simulation_id: IPGML_SIM_001
+  description: Simulate genetic variation, expression and phenotypes across populations and generations.
+general:
+  random_seed: 42
+  output_directory: data/simulated
+  save_intermediate_files: true
+  save_simulation_truth: true
+population:
+  number_of_populations: 4
+  individuals_per_population: 500
+  population_names: [POP_A, POP_B, POP_C, POP_D]
+  generations: 10
+  initial_effective_population_size: 500
+  population_size_model: constant
+  population_size:
+    initial: 500
+    minimum: 50
+    maximum: 5000
+    growth_rate: 0.0
+genotype:
+  number_of_individuals: 2000
+  number_of_markers: 1000
+  ploidy: 2
+  number_of_chromosomes: 10
+  allele_frequency:
+    distribution: uniform
+    minimum: 0.05
+    maximum: 0.95
+  genotype_coding:
+    reference_homozygous: 0
+    heterozygous: 1
+    alternate_homozygous: 2
+    missing: -9
+  missing_genotype_rate: 0.02
+  minimum_minor_allele_frequency: 0.01
+haplotype:
+  enabled: true
+  number_of_haplotypes: 100
+  simulate_recombination: true
+  recombination_rate: 0.01
+  generate_phased_genotypes: true
+evolution:
+  selection:
+    enabled: true
+    selection_coefficient: 0.05
+    dominance_coefficient: 0.5
+    selected_loci: 20
+  genetic_drift:
+    enabled: true
+    model: wright_fisher
+  mutation:
+    enabled: true
+    forward_mutation_rate: 0.000001
+    reverse_mutation_rate: 0.000001
+  migration:
+    enabled: true
+    migration_rate: 0.01
+    migration_model: symmetric
+  recombination:
+    enabled: true
+    recombination_rate: 0.01
+phenotype:
+  enabled: true
+  traits: [yield, fiber_strength, disease_resistance]
+  genetic_effects:
+    additive: 0.60
+    dominance: 0.20
+    epistatic: 0.05
+  environmental_variance: 0.15
+  residual_variance: 0.20
+  genotype_environment_interaction:
+    enabled: true
+  target_heritability:
+    yield: 0.40
+    fiber_strength: 0.60
+    disease_resistance: 0.50
+expression:
+  enabled: true
+  number_of_genes: 500
+  number_of_samples: 200
+  distribution: negative_binomial
+  differentially_expressed_gene_fraction: 0.10
+  log2_fold_change_range: {minimum: 1.0, maximum: 3.0}
+  library_size: {minimum: 1000000, maximum: 30000000}
+  dispersion: 0.10
+scenarios:
+  - {name: neutral, enabled: true, selection_coefficient: 0.0}
+  - {name: positive_selection, enabled: true, selection_coefficient: 0.05}
+  - {name: negative_selection, enabled: true, selection_coefficient: -0.05}
+outputs:
+  genotype_matrix: true
+  phenotype_matrix: true
+  expression_matrix: true
+  population_metadata: true
+  marker_metadata: true
+  allele_frequency_trajectories: true
+  haplotype_data: true
+  simulation_truth: true
+  summary_statistics: true

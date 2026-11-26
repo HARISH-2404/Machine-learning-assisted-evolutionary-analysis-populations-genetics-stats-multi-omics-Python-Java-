@@ -1,0 +1,57 @@
+project:
+  module: quantitative_genetics
+  description: Quantitative genetic parameter estimation and breeding prediction.
+input:
+  genotype_file: data/processed/genotype_matrix.csv
+  phenotype_file: data/processed/phenotype_matrix.csv
+  pedigree_file: data/processed/pedigree.csv
+  environment_file: data/processed/environment.csv
+traits: [yield, fiber_strength, disease_resistance]
+variance_components:
+  enabled: true
+  components: [additive, dominance, epistatic, environment, residual]
+  estimation_method: mixed_model
+heritability:
+  enabled: true
+  calculate_broad_sense: true
+  calculate_narrow_sense: true
+  confidence_interval: {enabled: true, method: bootstrap, replicates: 1000}
+genetic_advance:
+  enabled: true
+  selection_intensity: 2.06
+blup:
+  enabled: true
+  model: mixed_linear_model
+  fixed_effects: [environment, replication]
+  random_effects: [genotype, genotype_environment]
+gblup:
+  enabled: true
+  relationship_matrix: genomic
+  method: vanraden
+rrblup:
+  enabled: true
+  marker_effects: ridge_regression
+  standardize_markers: true
+  cross_validation: {enabled: true, folds: 5, repetitions: 10}
+bayesian:
+  enabled: true
+  models: [bayesian_ridge]
+  iterations: 10000
+  burn_in: 2000
+multi_trait:
+  enabled: true
+  calculate: [phenotypic_correlation, genetic_correlation]
+genotype_environment:
+  enabled: true
+  model: mixed_model
+genomic_selection:
+  enabled: true
+  training_fraction: 0.80
+  validation: {method: group_k_fold, folds: 5, group_column: family}
+  metrics: [correlation, rmse, mae, r2]
+selection_response:
+  enabled: true
+  use_breeder_equation: true
+outputs:
+  directory: results/breeding
+  figures: [heritability, genetic_correlation_heatmap, predicted_observed, genotype_ranking, selection_response]
