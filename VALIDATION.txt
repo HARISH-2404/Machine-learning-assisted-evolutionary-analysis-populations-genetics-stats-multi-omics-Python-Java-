@@ -1,0 +1,19 @@
+DATASET VALIDATION
+==================
+Genotypes: 250
+Marker columns: 300
+Locations: 5
+Replications per genotype-location: 3 to 3
+Plot records: 3750
+Unique plot IDs: 3750
+Marker map records: 300
+Expression features: 100
+Pedigree records: 250
+Synthetic gene annotation records: 100
+Raw-like example CSV files: 5
+Processed metadata files: 3
+Toy reference FASTA: present (explicitly NOT biological)
+Validation: PASSED
+Random seed: 20261127
+
+IMPORTANT: All generated observations and toy reference resources are synthetic.

@@ -1,0 +1,6 @@
+location_id,location_name,latitude,longitude,altitude_m,season,mean_temperature_C,rainfall_mm,soil_ph,soil_organic_carbon_pct,irrigation
+LOC_1,Site_North,17.8,75.1,650,Kharif_2026,27.5,720,6.8,0.62,rainfed
+LOC_2,Site_South,15.2,76.4,580,Kharif_2026,29.0,640,7.1,0.55,supplemental
+LOC_3,Site_East,16.9,77.2,710,Kharif_2026,26.8,810,6.5,0.71,rainfed
+LOC_4,Site_West,14.8,74.8,620,Kharif_2026,28.2,590,7.4,0.48,irrigated
+LOC_5,Site_Central,15.9,75.8,690,Kharif_2026,27.1,760,6.9,0.66,supplemental

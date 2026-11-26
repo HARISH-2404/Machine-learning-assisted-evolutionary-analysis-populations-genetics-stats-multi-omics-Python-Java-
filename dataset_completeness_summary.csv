@@ -1,0 +1,7 @@
+entity,count,description
+genotypes,250,unique genotype entries
+markers,300,SNP dosage columns
+locations,5,trial locations
+replications_per_genotype_location,3,balanced design
+plot_observations,3750,genotype x location x replication
+expression_features,100,synthetic continuous expression features

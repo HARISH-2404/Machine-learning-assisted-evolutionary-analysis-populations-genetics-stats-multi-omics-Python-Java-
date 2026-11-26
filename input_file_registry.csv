@@ -1,0 +1,6 @@
+relative_path,size_bytes,sha256,provenance
+raw/environment/synthetic_raw_location_environment.csv,494,66988ccd49f025a03f1ea1254d22cb9ef5e9a4b75b08f8fdbc9c540c486f8198,synthetic generated input; not empirical raw data
+raw/genotype/synthetic_raw_genotype_dosage.csv,301346,bb1e7307e82042ccbefa33164e10624d4e4cd98243a8eb418fa22fc4ba84781c,synthetic generated input; not empirical raw data
+raw/metadata/synthetic_raw_field_layout.csv,135053,fca58efc6c962b8d27122bbdf63a725932074b5ca09f364038ca2fe257e27e99,synthetic generated input; not empirical raw data
+raw/metadata/synthetic_raw_sample_manifest.csv,39732,57cad0e2e3521352f8ddb3d0bf185e14aac630c3f8559006d79d7b6b7ab682db,synthetic generated input; not empirical raw data
+raw/phenotype/synthetic_raw_plot_observations.csv,345972,05033387422e91d80780a4af41edf7e3d817a3ccbaaec3335a89c06998672162,synthetic generated input; not empirical raw data

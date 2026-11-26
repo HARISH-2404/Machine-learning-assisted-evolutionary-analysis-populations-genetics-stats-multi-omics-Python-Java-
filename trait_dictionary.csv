@@ -1,0 +1,8 @@
+trait,unit,data_type,interpretation
+seed_cotton_yield_kg_plot,kg plot-1,Continuous,Higher generally desirable
+boll_weight_g,g,Continuous,Higher may be desirable subject to agronomic trade-offs
+fiber_length_mm,mm,Continuous,Quality trait
+fiber_strength_g_tex,g tex-1,Continuous,Quality trait
+micronaire,unitless,Continuous,Interpret relative to target market range
+lint_percent,%,Continuous,Lint percentage
+disease_score,1-9 scale,Ordinal,Lower score indicates less disease in this simulated coding
