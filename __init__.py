@@ -1,21 +1,14 @@
-"""Multi-omics integration utilities for population genomics and crop breeding."""
-from .harmonization import harmonize_sample_ids, intersect_samples
-from .merge import merge_omics_blocks
-from .scaling import scale_feature_block
-from .missingness import filter_missing_features, impute_block
-from .association import pairwise_feature_correlations
-from .integration import early_integration_matrix, late_integration_scores
+"""Evolutionary forecasting tools."""
+from .fitness_models import genotype_fitness, custom_genotype_fitness
+from .wright_fisher import simulate_wright_fisher, summarize_simulations, deterministic_diploid_selection
+from .environment_gxe import environment_selection_schedule, predict_environmental_trait, apply_environmental_selection
+from .uncertainty import probability_above, fixation_loss_probability, bootstrap_mean_interval
+from .trait_forecasting import project_trait_from_allele_frequency, project_polygenic_trait
+from .resistance_transition import track_resistance_candidate, compare_resistance_and_susceptibility
+from .forecast_pipeline import forecast_allele_and_trait
 
-from .genotype_expression import integrate_genotype_expression
-from .genotype_phenotype import integrate_genotype_phenotype
-from .multiomics import integrate_multiomics, cross_block_associations
-from .evolutionary_integration import build_evolutionary_trajectory, classify_allele_state, summarize_locus_population
-
-from .allele_frequency_estimation import estimate_allele_frequency, temporal_frequency_change, estimate_fis
-from .selection_estimation import estimate_selection_logit, deterministic_selection_step, simulate_selection_trajectory
-from .drift_migration_estimation import estimate_temporal_ne, estimate_migration_from_admixture, heterozygosity_decay
-from .population_differentiation import expected_heterozygosity, pairwise_fst_from_frequencies, summarize_diversity
-from .quantitative_parameter_estimation import (estimate_broad_sense_h2, estimate_genetic_correlation,
-    selection_differential, realized_response, response_per_generation, additive_dominance_from_genotype_means)
-from .locus_trait_association import scan_locus_trait
-from .evolutionary_estimation_pipeline import estimate_evolutionary_parameters, integrate_evolutionary_traits
+from .allele_trajectory import build_allele_trajectory, forecast_locus_trajectory
+from .phenotype_trajectory import summarize_phenotype_trajectory, project_phenotype_trajectory
+from .resistance_forecast import forecast_resistance_allele
+from .breeding_response import breeder_equation_response, project_breeding_response, selection_response_from_observations
+from .future_population import forecast_multiple_populations, project_population_counts

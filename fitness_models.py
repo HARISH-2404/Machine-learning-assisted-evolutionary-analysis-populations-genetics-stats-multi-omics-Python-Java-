@@ -1,25 +1,21 @@
-"""Fitness parameterizations for diploid genotype classes."""
-import numpy as np
-from ._core import prob
+"""Diploid fitness models for biallelic alleles."""
+def genotype_fitness(selection_coefficient, dominance=0.5, model="additive"):
+    """Return relative fitness (AA, Aa, aa), where A is focal allele.
 
-def genotype_fitness(selection_coefficient, dominance=0.5, baseline=1.0):
-    """Return [wAA,wAa,waa] = baseline*[1+s, 1+h*s, 1].
-
-    h=0: beneficial allele completely recessive; h=1: completely dominant;
-    h=0.5: additive. This parameterization does not describe overdominance.
+    Additive: h=0.5; dominant beneficial: h=1; recessive beneficial: h=0.
+    Overdominance/underdominance should use explicit genotype_fitnesses.
     """
-    s=float(selection_coefficient); h=prob(dominance,'dominance'); b=float(baseline)
-    if s < -1 or b <= 0: raise ValueError('selection_coefficient must be >= -1 and baseline > 0')
-    return b*np.array([1+s,1+h*s,1.0])
+    s=float(selection_coefficient)
+    h={"additive":0.5,"dominant":1.0,"recessive":0.0}.get(model,dominance)
+    if model not in {"additive","dominant","recessive","custom"}:
+        raise ValueError("model must be additive, dominant, recessive or custom")
+    if model=="custom": h=float(dominance)
+    w=(1+s,1+h*s,1.0)
+    if min(w)<0: raise ValueError("Fitness values cannot be negative")
+    return w
 
-def overdominance_fitness(w_AA,w_Aa,w_aa):
-    """Explicit heterozygote-advantage fitness triplet."""
-    f=np.asarray([w_AA,w_Aa,w_aa],float)
-    if np.any(f<0) or not np.all(np.isfinite(f)) or not (f[1]>f[0] and f[1]>f[2]): raise ValueError('require finite nonnegative fitness and wAa > both homozygotes')
-    return f
-
-def underdominance_fitness(w_AA,w_Aa,w_aa):
-    """Explicit heterozygote-disadvantage fitness triplet."""
-    f=np.asarray([w_AA,w_Aa,w_aa],float)
-    if np.any(f<0) or not np.all(np.isfinite(f)) or not (f[1]<f[0] and f[1]<f[2]): raise ValueError('require finite nonnegative fitness and wAa < both homozygotes')
-    return f
+def custom_genotype_fitness(w_AA,w_Aa,w_aa):
+    """Validate explicit fitnesses; supports overdominance and underdominance."""
+    w=tuple(map(float,(w_AA,w_Aa,w_aa)))
+    if min(w)<0 or max(w)==0: raise ValueError("Fitnesses must be nonnegative and not all zero")
+    return w

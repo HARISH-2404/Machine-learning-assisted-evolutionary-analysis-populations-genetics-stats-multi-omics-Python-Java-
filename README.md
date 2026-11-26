@@ -1,64 +1,47 @@
-# Multi-omics integration
+# Evolutionary forecasting
 
-Python package for sample harmonization, matched-block merging, training-only scaling, missingness filtering/imputation, cross-omics correlation screening, and early/late integration.
+This package extends population-genetic estimation into forward prediction of allele-frequency trajectories and associated trait means.
 
-## Data convention
-Each input block is a `pandas.DataFrame`: rows = biological samples, columns = features. Use stable sample IDs and feature IDs. Prefixing feature columns avoids collisions across omics.
+## Modules
+- `fitness_models.py`: additive, dominant, recessive and custom genotype fitness; custom triplets support overdominance/underdominance.
+- `wright_fisher.py`: diploid Wright–Fisher forward simulation with selection, drift, mutation and migration; replicate paths and quantile summaries.
+- `environment_gxe.py`: environment-specific selection schedules and simple G×E trait expectation.
+- `uncertainty.py`: probability of crossing frequency thresholds, fixation/loss probabilities and bootstrap intervals.
+- `trait_forecasting.py`: single-locus additive/dominance and independent-locus polygenic trait projections.
+- `resistance_transition.py`: evidence-aware candidate resistance/susceptibility allele trajectory summaries.
+- `forecast_pipeline.py`: combined allele and trait forecasting workflow.
 
-## Example
+## Quick start
 ```python
-import pandas as pd
-from popgenml.integration import merge_omics_blocks, scale_feature_block
-blocks = {"geno": genotype_df, "expr": expression_df, "pheno": phenotype_df}
-X = merge_omics_blocks(blocks, join="inner")
-X_train, X_test = scale_feature_block(X_train, X_test, method="zscore")
+from popgenml.forecasting import forecast_allele_and_trait
+result = forecast_allele_and_trait(
+    p0=0.15, generations=20, population_size=200,
+    selection_coefficient=0.05, baseline_trait_mean=25.0,
+    additive_effect=1.2, dominance=0.5,
+    replicates=1000, seed=2026
+)
+result["allele_summary"].to_csv("allele_forecast.csv", index=False)
+result["trait_summary"].to_csv("trait_forecast.csv", index=False)
 ```
 
-## Critical safeguards
-- Confirm that IDs refer to the same biological individual, tissue, treatment, developmental stage and time point. Do not equate plant, plot, RNA library and genotype IDs without a documented mapping.
-- Inspect ID-normalization collisions; the helper raises an error rather than silently merging them.
-- Fit imputation, scaling, filtering and feature selection inside each training fold. Never fit using the full dataset before validation.
-- Correct batch effects within an appropriate experimental design; do not remove biological signal confounded with batch.
-- Omics blocks have different distributions and measurement scales. Normalize each block appropriately before integration; do not compare raw genotype dosage, RNA counts and phenotype values directly.
-- Correlation is association, not regulation or causation. Correct for multiple testing in downstream inference.
-- For cotton, account for allotetraploid A- and D-subgenomes, homeologous loci, allele dosage/ploidy, and ambiguous read/variant assignment. This toolkit does not perform polyploid-aware genotype calling or homeolog resolution.
-
-## Scope
-This is a transparent baseline toolkit, not a full implementation of MOFA+, mixOmics/DIABLO, iCluster, or a causal multi-omics model. Use validated specialist tools for those analyses.
+## Model assumptions and warnings
+- The default Wright–Fisher model is a single diploid, biallelic locus with random mating, discrete non-overlapping generations and binomial drift sampling of 2N gene copies.
+- Selection fitness is genotype-based: AA=1+s, Aa=1+h*s, aa=1. Custom fitness triplets allow overdominance (wAa greater than both homozygotes) or underdominance.
+- Mutation and migration are one-generation frequency transformations. Migration requires an explicitly supplied migrant allele frequency.
+- Environment effects in `environment_gxe.py` are helper functions; the caller must supply a generation-specific selection schedule and run environment-specific simulations. The core simulator accepts generation-to-selection adjustments.
+- Trait projection assumes Hardy–Weinberg proportions and supplied effects. Single-locus and independent-locus projections are not equivalent to GBLUP or a full quantitative-genetic mixed model.
+- A frequency increase does not prove selection or resistance. Validate resistance effects with phenotyping, independent association/functional evidence and control populations.
+- Forecast uncertainty reflects stochastic replicates under the specified model, not uncertainty in parameter estimates unless parameters are also sampled.
+- Cotton is allotetraploid. Do not apply diploid 2N sampling to cotton loci without homeolog-specific ploidy-aware allele dosage and an appropriate inheritance model. This implementation is a diploid baseline, not a validated cotton polyploid simulator.
 
 
-## Added interaction modules
+## Additional requested forecasting modules
 
-- `genotype_expression.py`: aligns sample-level genotype and expression blocks, optionally aggregates variant features to gene IDs.
-- `genotype_phenotype.py`: joins marker data to phenotype observations and optional metadata.
-- `multiomics.py`: merges multiple blocks, reports coverage and screens cross-block correlations.
-- `evolutionary_integration.py`: tracks an allele at chromosome/position/gene across population, location, time point and generation; calculates allele frequency, frequency change and change per generation; optionally joins quantitative-genetic and phenotype columns.
+- `allele_trajectory.py`: builds observed locus-specific frequency trajectories from chromosome/position/gene/allele/population/location/generation allele counts and forecasts a focal locus.
+- `phenotype_trajectory.py`: summarizes observed trait means and projects a single-locus trait trajectory.
+- `resistance_forecast.py`: predicts candidate resistance-associated allele frequency and threshold/fixation probabilities; labels evidence status explicitly.
+- `breeding_response.py`: breeder's equation response (R=h²S), realized response and linear cycle projection.
+- `future_population.py`: forecasts independent populations with population-specific parameters and converts frequencies to expected allele-copy counts under diploid assumptions.
 
-### Longitudinal input schema
-
-`allele_counts` must contain: `chromosome`, `position`, `gene_id`, `allele`, `population`, `location`, `timepoint`, `generation`, `allele_count`, `total_alleles`.
-
-Optional `trait_data` should include the matching keys `population`, `location`, `timepoint`, `generation` plus traits/parameters such as fiber strength, disease score, yield, boll weight, heritability estimates or selection differential. Include a clear `sample_id` or experimental-unit key in your own analysis if multiple records share the same group keys; avoid accidental many-to-many joins.
-
-The trajectory output includes allele frequency and temporal change. A shift from a susceptible-associated allele to a resistance-associated allele can be displayed only when those allele effects have been independently established (e.g. validated phenotype association/functional evidence). Frequency increase by itself does not establish resistance, selection, or causality. Include untreated/control populations and replicate populations where possible to distinguish selection from drift, migration, bottlenecks and sampling noise.
-
-For diploid biallelic data, `total_alleles` is typically twice the number of successfully genotyped individuals. For allotetraploid cotton, allele dosage and denominator must reflect the specific locus/homeolog and ploidy-aware calling; do not blindly use 2N. Position coordinates must state genome assembly and coordinate convention (0-based vs 1-based).
-
-## Detailed estimation modules
-
-- `allele_frequency_estimation.py`: allele frequency, expected heterozygosity, FIS and generation-wise changes.
-- `selection_estimation.py`: approximate logit-frequency slope and deterministic diploid viability-selection simulation with dominance.
-- `drift_migration_estimation.py`: rough temporal-Ne, one-source admixture estimate and neutral heterozygosity-decay expectation.
-- `population_differentiation.py`: expected heterozygosity, pairwise approximate FST and diversity summaries.
-- `quantitative_parameter_estimation.py`: simplified broad-sense heritability, genetic correlation, selection differential, realized response and additive/dominance effects.
-- `locus_trait_association.py`: single-marker dosage regression screen with BH-style FDR.
-- `evolutionary_estimation_pipeline.py`: orchestrates estimates and joins trait/expression observations.
-
-### Minimum allele-count input
-One row per chromosome-position-gene-allele-population-location-time-generation:
-`chromosome, position, gene_id, allele, population, location, timepoint, generation, allele_count, total_alleles`.
-
-### Interpretation limits
-Selection logit slope is a descriptive approximation, not a universal estimate of diploid selection coefficient. Temporal Ne needs many approximately neutral, independent loci and adequate sampling. FST here is an uncorrected heterozygosity approximation. Heritability is a simplified balanced-design estimator; use REML/mixed models for unbalanced trials, GxE and spatial effects. Marker-trait regression is not mixed-model GWAS. Adjust for structure, kinship, batch and multiple testing. Avoid using the same data to select features and evaluate predictive accuracy.
-
-For cotton, estimate allele counts at the correct A/D homeolog and ploidy; standard diploid 0/1/2 dosage and 2N allele denominator are not universally valid.
+### Important assumptions
+Breeder's equation uses **narrow-sense** heritability (h²), not broad-sense H². Trait projections require supplied effect estimates and assumptions about genotype frequencies. `future_population.py` uses 2N for allele-copy counts and is diploid only. These modules do not yet model structured migration between multiple populations jointly; each population is simulated independently unless the caller explicitly supplies a migration source frequency in the single-population simulator. For cotton, replace diploid dosage and 2N assumptions with validated homeolog-specific polyploid models.
