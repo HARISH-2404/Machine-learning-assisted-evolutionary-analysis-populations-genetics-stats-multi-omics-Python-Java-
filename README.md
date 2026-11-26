@@ -1,4 +1,4 @@
-# Configuration guide
+
 
 # EvoBreed-ML
 ### An Integrated Population Genetics, Multi-Omics and Machine Learning Framework for Evolutionary Tracking and Adaptive Trait Prediction
