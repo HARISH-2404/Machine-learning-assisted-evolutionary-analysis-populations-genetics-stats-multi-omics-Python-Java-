@@ -1,1 +1,1 @@
-Java package `org.ipgml.quantitativegenetics`. Compile: `javac -d build $(find src/main/java -name '*.java')`.
+Java package `org.ipgml.machinelearning`. Compile with `javac -d build $(find src/main/java -name '*.java')`.
