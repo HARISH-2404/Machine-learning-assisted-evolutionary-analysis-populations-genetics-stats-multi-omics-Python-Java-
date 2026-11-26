@@ -1,9 +1,7 @@
-"""Simulation subpackage for Integrated Population Genomics ML."""
-from .genotype_simulator import GenotypeSimulator
-from .phenotype_simulator import PhenotypeSimulator
-from .expression_simulator import ExpressionSimulator
-from .population_simulator import PopulationSimulator
-from .evolutionary_simulator import EvolutionarySimulator
-
-__all__ = ["GenotypeSimulator", "PhenotypeSimulator", "ExpressionSimulator",
-           "PopulationSimulator", "EvolutionarySimulator"]
+"""Preprocessing utilities for synthetic and real genotype/phenotype/expression data."""
+from .genotype_qc import GenotypeQC
+from .phenotype_qc import PhenotypeQC
+from .expression_qc import ExpressionQC
+from .metadata_qc import MetadataQC
+from .data_integration import DataIntegrator
+__all__ = ["GenotypeQC","PhenotypeQC","ExpressionQC","MetadataQC","DataIntegrator"]
