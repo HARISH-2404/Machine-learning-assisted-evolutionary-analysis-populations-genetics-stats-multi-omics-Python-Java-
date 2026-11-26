@@ -1,12 +1,14 @@
-"""Molecular genetics utilities for sequence-level exploratory analyses."""
-from .sequence import reverse_complement, gc_content, validate_dna
-from .translation import transcribe, translate
-from .codon_usage import codon_usage
-from .motif_scanning import scan_motif
-from .primer_design import primer_metrics, design_primers
-from .protein_properties import protein_properties
-
-from .functional_annotation import load_annotations, annotate_gene_list, annotation_coverage
-from .go_enrichment import go_enrichment
-from .kegg_enrichment import kegg_enrichment
-from .regulatory_network import build_regulatory_network, network_summary, reachable_targets
+"""Quantitative genetics and plant-breeding statistical utilities."""
+from .trait_summary import trait_summary
+from .variance_components import one_way_random_effects, plot_level_components
+from .heritability import broad_sense_heritability, narrow_sense_heritability, entry_mean_heritability
+from .genetic_advance import genetic_advance
+from .genetic_correlation import genetic_correlation
+from .selection_response import response_to_selection, correlated_response
+from .combining_ability import gca_sca
+from .gxe import stability_parameters
+from .blup import ridge_blup
+from .gblup import gblup
+from .rrblup import rrblup
+from .bayesian_models import bayesian_ridge_gibbs
+from .multi_trait import multi_trait_rrblup
