@@ -1,44 +1,103 @@
-# Data package: 250 genotypes × 5 locations × 3 replications × 300 markers
+# Simulation modules
 
-## Experimental design
-- Genotypes: 250
-- Locations: 5
-- Replications per genotype per location: 3
-- Total plot records: 3750
-- Markers: 300
-- Traits: 7
-- Molecular expression features: 100
+This package generates reproducible synthetic data for software testing and
+method development in population genomics, quantitative genetics and breeding.
 
-This is a **synthetic demonstration dataset**, not measured experimental data.
+## Included modules
 
-## Main files
-- `simulated/genotype/genotype_dosage_250x300.csv`: one row per genotype, 300 marker columns.
-- `simulated/phenotype/plot_phenotypes_3750_plots.csv`: one row per genotype-location-replication plot.
-- `simulated/metadata/field_trial_design_250x5x3.csv`: complete trial layout.
-- `simulated/environment/location_environment.csv`: five example location covariate records.
-- `simulated/metadata/genotype_sample_metadata.csv`: genotype/sample descriptors.
-- `simulated/pedigree/pedigree_250_genotypes.csv`: illustrative pedigree.
-- `simulated/expression/expression_250x100.csv`: synthetic continuous expression features.
-- `reference/marker_map/marker_map_300.csv`: marker positions and allele labels.
-- `reference/annotation/synthetic_gene_annotation.csv`: synthetic gene intervals only.
-- `processed/`: marker QC and summarized phenotype tables.
+- `genotype_simulator.py`: diploid biallelic SNP dosage, population-specific allele
+  frequencies, marker map, sample metadata and marker QC.
+- `phenotype_simulator.py`: plot-level multi-environment traits with genotype,
+  environment, G×E, block, residual, additive and dominance components.
+- `expression_simulator.py`: negative-binomial count matrix and known simulated
+  differential-expression truth labels.
+- `population_simulator.py`: population membership and allele-frequency summaries.
+- `evolutionary_simulator.py`: Wright-Fisher drift with selection, dominance,
+  migration and mutation.
 
-## Experimental design interpretation
-Each genotype is evaluated in every location with three replications, giving a balanced multi-environment trial with 3,750 plots. Marker genotype is measured at genotype level and is therefore not repeated as independent DNA observations for each plot.
+## Installation
 
-## Genotype coding and cotton caveat
-The 300-marker matrix is simulated as biallelic diploid dosage (0/1/2; missing values are blank). *Gossypium hirsutum* is allotetraploid. For real cotton data, establish whether markers are homeolog-specific, how allele dosage is called, and whether a diploid coding is valid before applying diploid population-genetic estimators.
+```bash
+pip install numpy pandas
+```
 
-## Phenotype simulation
-Plot phenotypes contain genotype genetic effects, location effects, genotype-by-environment effects, replication/block variation and residual noise. The trait values and units are illustrative; replace them with actual measurement protocols for real experiments.
+From repository root, for a `src/` layout:
 
-## Expression data
-Expression matrix is synthetic continuous normalized-like data, **not raw RNA-seq counts**. Do not feed it into count-based DESeq2 as if it were raw integer counts.
+```bash
+export PYTHONPATH="$PWD/src:$PYTHONPATH"
+```
 
-## Reproducibility
-Random seed: 20261127. Files are generated using NumPy/Pandas. `simulated_causal` in marker metadata is simulation truth only and must not be used as a predictor in ML.
+## Full experimental-design example
 
+```python
+from pathlib import Path
+from popgenml.simulation import (
+    GenotypeSimulator, PhenotypeSimulator, ExpressionSimulator,
+    PopulationSimulator, EvolutionarySimulator
+)
 
-## Directory population status
+out = Path("results/simulation_demo")
+genotype, marker_map, sample_meta = GenotypeSimulator(
+    n_genotypes=250, n_markers=300, n_chromosomes=15,
+    n_populations=5, missing_rate=0.01, seed=20261127
+).simulate(out / "genotype")
 
-All requested data subdirectories contain data files or README instructions. `raw/` contains synthetic raw-like examples solely to test ingestion; these are not empirical observations. `reference/genome/synthetic_demo_reference.fa` is a toy random sequence for parser testing only, not a cotton reference assembly. Replace these with real source data and a validated *G. hirsutum* reference before biological analysis.
+phenotype = PhenotypeSimulator(
+    n_locations=5, replications=3, seed=20261127
+).simulate(genotype, marker_map, out / "phenotype")
+
+# Expression samples here are genotypes for demonstration only.
+expression, expression_truth = ExpressionSimulator(
+    n_genes=100, seed=20261127
+).simulate(genotype.genotype_id, output_dir=out / "expression")
+
+population, frequencies = PopulationSimulator(
+    n_populations=5, individuals_per_population=50,
+    population_names=[f"POP_{i}" for i in range(1,6)]
+).simulate(genotype=genotype.assign(population_id=sample_meta.population_id),
+           output_dir=out / "population")
+
+evolution = EvolutionarySimulator(
+    generations=50, population_size=500, selection_coefficient=0.05,
+    dominance_coefficient=0.5, mutation_rate=1e-6,
+    migration_rate=0.01, seed=20261127
+).simulate(initial_frequencies=marker_map.simulated_source_maf.to_numpy(),
+           population_ids=["POP_1"], marker_ids=marker_map.marker_id.tolist(),
+           output_dir=out / "evolution")
+```
+
+## Model definitions
+
+### Genotype sampling
+At marker allele frequency `p`, diploid dosage follows Hardy–Weinberg
+probabilities: `P(0)=(1-p)^2`, `P(1)=2p(1-p)`, `P(2)=p^2`.
+Population-specific frequencies create simple population differentiation.
+Markers are sampled independently; this does not create realistic LD blocks.
+
+### Phenotype model
+`Y_ijk = μ + G_i + E_j + (G×E)_ij + B_jk + ε_ijk`.
+The genotype term is decomposed into a marker-based additive score and a
+heterozygosity-based dominance score. Variance components are simplified
+simulation controls, not estimates from a real trial.
+
+### Expression model
+Negative-binomial counts have `Var(Y)=μ+αμ²`. Simulated DE labels are retained
+in a separate truth file and must never be used as predictor variables in ML.
+
+### Evolutionary model
+Genotype fitnesses are `aa=1`, `Aa=1+h·s`, `AA=1+s`. Here `h=0` represents a
+recessive beneficial allele, `h=0.5` an additive fitness effect and `h=1` a
+dominant beneficial allele. This model does not include heterozygote advantage
+(overdominance, where heterozygote fitness exceeds both homozygotes); that
+requires a different three-genotype fitness specification.
+
+## Scientific cautions
+
+All outputs are synthetic. They are not observed field, sequencing or
+population data. The genotype model assumes diploid 0/1/2 dosage. Cotton
+(*Gossypium hirsutum*) is allotetraploid; real cotton analyses require a
+validated ploidy/dosage model and appropriate A/D subgenome and homeolog
+handling. The expression simulator makes synthetic counts, not experimental
+RNA-seq replicates. The evolutionary model is a simplified independent-locus
+Wright-Fisher model and does not simulate haplotypes, recombination, linkage
+disequilibrium, epistasis, or polyploid inheritance.
