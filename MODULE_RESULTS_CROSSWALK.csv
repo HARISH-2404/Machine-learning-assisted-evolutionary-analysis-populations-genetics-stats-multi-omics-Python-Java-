@@ -1,0 +1,23 @@
+module,result_file,calculated_outputs
+allele_frequency.py,allele_frequency.csv,"Alt/ref frequency, MAF and missingness across 300 markers"
+genotype_frequency.py,genotype_frequency.csv,0/1/2 genotype class counts and proportions
+hwe.py,hwe.csv,"HWE chi-square, p and BH q-values"
+heterozygosity.py,heterozygosity.csv,Observed/expected heterozygosity
+diversity.py,diversity.csv,"Gene diversity, effective alleles and Shannon diversity"
+pic.py,pic.csv,Biallelic PIC
+fst.py,fst_pairwise_groups.csv,Pairwise genetic-group FST proxy
+fis.py,fis.csv,Marker FIS and group-specific FIS
+linkage_disequilibrium.py,linkage_disequilibrium_all_pairs.csv,"All 44,850 marker-pair dosage r/r2 results"
+haplotype.py,haplotype_frequencies_simulated_phase.csv,Six-locus randomly phased demonstration
+genetic_distance.py,genetic_distance_groups.csv; genetic_distance_genotypes_euclidean.csv,Nei group distance and genotype Euclidean distance
+amova.py,amova_group_proxy.csv,Distance-based one-factor AMOVA proxy
+population_structure.py,pca_scores.csv; pca_variance.csv; structure_kmeans_assignments.csv,PCA and K-means exploratory structure
+selection.py,resistance_candidate_evidence.csv; susceptible_to_resistant_generation_trajectories.csv,Observed allele direction and assumed selection scenarios
+drift.py,genetic_drift_neutral_scenarios.csv,Neutral Wright-Fisher drift
+mutation.py,mutation_scenarios.csv,Mutation-only scenario matrix
+migration.py,migration_scenarios.csv,Group-to-group migration-only scenarios
+recombination.py,recombination_ld_decay_scenarios.csv,LD decay for assumed recombination fractions
+selection_signatures.py,selection_signature_screen.csv,Exploratory FST/heterozygosity outlier screen
+temporal_analysis.py,temporal_analysis_simulated_series.csv,Simulated temporal trajectory; one observed time point
+effective_population_size.py,effective_population_size_simulation_recovery.csv,Ne method-recovery simulation
+integrated_framework,marker_population_genomics_expression_trait_integration.csv,"Joined allele, trait, diversity, FST, nearest gene and expression evidence"
