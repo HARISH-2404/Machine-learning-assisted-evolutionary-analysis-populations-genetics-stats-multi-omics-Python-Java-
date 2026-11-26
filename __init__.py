@@ -1,9 +1,21 @@
-"""Machine-learning utilities for genomic and breeding data."""
-from .preprocessing import standardize, train_test_split_indices
-from .regression import ridge_regression, lasso_coordinate_descent
-from .classification import logistic_regression, classification_metrics
-from .feature_selection import univariate_feature_scores, select_top_features
-from .model_evaluation import regression_metrics
-from .cross_validation import kfold_indices, grouped_kfold_indices
-from .hyperparameter_tuning import grid_search_ridge
-from .explainability import permutation_importance
+"""Multi-omics integration utilities for population genomics and crop breeding."""
+from .harmonization import harmonize_sample_ids, intersect_samples
+from .merge import merge_omics_blocks
+from .scaling import scale_feature_block
+from .missingness import filter_missing_features, impute_block
+from .association import pairwise_feature_correlations
+from .integration import early_integration_matrix, late_integration_scores
+
+from .genotype_expression import integrate_genotype_expression
+from .genotype_phenotype import integrate_genotype_phenotype
+from .multiomics import integrate_multiomics, cross_block_associations
+from .evolutionary_integration import build_evolutionary_trajectory, classify_allele_state, summarize_locus_population
+
+from .allele_frequency_estimation import estimate_allele_frequency, temporal_frequency_change, estimate_fis
+from .selection_estimation import estimate_selection_logit, deterministic_selection_step, simulate_selection_trajectory
+from .drift_migration_estimation import estimate_temporal_ne, estimate_migration_from_admixture, heterozygosity_decay
+from .population_differentiation import expected_heterozygosity, pairwise_fst_from_frequencies, summarize_diversity
+from .quantitative_parameter_estimation import (estimate_broad_sense_h2, estimate_genetic_correlation,
+    selection_differential, realized_response, response_per_generation, additive_dominance_from_genotype_means)
+from .locus_trait_association import scan_locus_trait
+from .evolutionary_estimation_pipeline import estimate_evolutionary_parameters, integrate_evolutionary_traits
